@@ -129,8 +129,9 @@ data class TestAllTypesProto2(
     val fieldName17_: Int? = null,
     val fieldName18_: Int? = null,
     val oneofField: OneofField<*>? = null,
-    override val unknownFields: Map<Int, pbandk.UnknownField> = emptyMap()
-) : pbandk.Message {
+    override val unknownFields: Map<Int, pbandk.UnknownField> = emptyMap(),
+    override val extensionFields: MutableMap<Int, kotlin.Any> = mutableMapOf()
+) : pbandk.ExtendableMessage {
     sealed class OneofField<V>(value: V) : pbandk.Message.OneOf<V>(value) {
         class OneofUint32(oneofUint32: Int = 0) : OneofField<Int>(oneofUint32)
         class OneofNestedMessage(oneofNestedMessage: pbandk.conformance.pb.TestAllTypesProto2.NestedMessage) : OneofField<pbandk.conformance.pb.TestAllTypesProto2.NestedMessage>(oneofNestedMessage)
@@ -165,6 +166,7 @@ data class TestAllTypesProto2(
     override operator fun plus(other: pbandk.Message?) = protoMergeImpl(other)
     override val descriptor get() = Companion.descriptor
     override val protoSize by lazy { super.protoSize }
+    @kotlin.native.concurrent.ThreadLocal
     companion object : pbandk.Message.Companion<TestAllTypesProto2> {
         val defaultInstance by lazy { TestAllTypesProto2() }
         override fun decodeWith(u: pbandk.MessageDecoder) = TestAllTypesProto2.decodeWithImpl(u)
@@ -1385,6 +1387,7 @@ data class TestAllTypesProto2(
         override operator fun plus(other: pbandk.Message?) = protoMergeImpl(other)
         override val descriptor get() = Companion.descriptor
         override val protoSize by lazy { super.protoSize }
+        @kotlin.native.concurrent.ThreadLocal
         companion object : pbandk.Message.Companion<TestAllTypesProto2.NestedMessage> {
             val defaultInstance by lazy { TestAllTypesProto2.NestedMessage() }
             override fun decodeWith(u: pbandk.MessageDecoder) = TestAllTypesProto2.NestedMessage.decodeWithImpl(u)
@@ -1429,6 +1432,7 @@ data class TestAllTypesProto2(
         override operator fun plus(other: pbandk.Message?) = protoMergeImpl(other)
         override val descriptor get() = Companion.descriptor
         override val protoSize by lazy { super.protoSize }
+        @kotlin.native.concurrent.ThreadLocal
         companion object : pbandk.Message.Companion<TestAllTypesProto2.MapInt32Int32Entry> {
             val defaultInstance by lazy { TestAllTypesProto2.MapInt32Int32Entry() }
             override fun decodeWith(u: pbandk.MessageDecoder) = TestAllTypesProto2.MapInt32Int32Entry.decodeWithImpl(u)
@@ -1473,6 +1477,7 @@ data class TestAllTypesProto2(
         override operator fun plus(other: pbandk.Message?) = protoMergeImpl(other)
         override val descriptor get() = Companion.descriptor
         override val protoSize by lazy { super.protoSize }
+        @kotlin.native.concurrent.ThreadLocal
         companion object : pbandk.Message.Companion<TestAllTypesProto2.MapInt64Int64Entry> {
             val defaultInstance by lazy { TestAllTypesProto2.MapInt64Int64Entry() }
             override fun decodeWith(u: pbandk.MessageDecoder) = TestAllTypesProto2.MapInt64Int64Entry.decodeWithImpl(u)
@@ -1517,6 +1522,7 @@ data class TestAllTypesProto2(
         override operator fun plus(other: pbandk.Message?) = protoMergeImpl(other)
         override val descriptor get() = Companion.descriptor
         override val protoSize by lazy { super.protoSize }
+        @kotlin.native.concurrent.ThreadLocal
         companion object : pbandk.Message.Companion<TestAllTypesProto2.MapUint32Uint32Entry> {
             val defaultInstance by lazy { TestAllTypesProto2.MapUint32Uint32Entry() }
             override fun decodeWith(u: pbandk.MessageDecoder) = TestAllTypesProto2.MapUint32Uint32Entry.decodeWithImpl(u)
@@ -1561,6 +1567,7 @@ data class TestAllTypesProto2(
         override operator fun plus(other: pbandk.Message?) = protoMergeImpl(other)
         override val descriptor get() = Companion.descriptor
         override val protoSize by lazy { super.protoSize }
+        @kotlin.native.concurrent.ThreadLocal
         companion object : pbandk.Message.Companion<TestAllTypesProto2.MapUint64Uint64Entry> {
             val defaultInstance by lazy { TestAllTypesProto2.MapUint64Uint64Entry() }
             override fun decodeWith(u: pbandk.MessageDecoder) = TestAllTypesProto2.MapUint64Uint64Entry.decodeWithImpl(u)
@@ -1605,6 +1612,7 @@ data class TestAllTypesProto2(
         override operator fun plus(other: pbandk.Message?) = protoMergeImpl(other)
         override val descriptor get() = Companion.descriptor
         override val protoSize by lazy { super.protoSize }
+        @kotlin.native.concurrent.ThreadLocal
         companion object : pbandk.Message.Companion<TestAllTypesProto2.MapSint32Sint32Entry> {
             val defaultInstance by lazy { TestAllTypesProto2.MapSint32Sint32Entry() }
             override fun decodeWith(u: pbandk.MessageDecoder) = TestAllTypesProto2.MapSint32Sint32Entry.decodeWithImpl(u)
@@ -1649,6 +1657,7 @@ data class TestAllTypesProto2(
         override operator fun plus(other: pbandk.Message?) = protoMergeImpl(other)
         override val descriptor get() = Companion.descriptor
         override val protoSize by lazy { super.protoSize }
+        @kotlin.native.concurrent.ThreadLocal
         companion object : pbandk.Message.Companion<TestAllTypesProto2.MapSint64Sint64Entry> {
             val defaultInstance by lazy { TestAllTypesProto2.MapSint64Sint64Entry() }
             override fun decodeWith(u: pbandk.MessageDecoder) = TestAllTypesProto2.MapSint64Sint64Entry.decodeWithImpl(u)
@@ -1693,6 +1702,7 @@ data class TestAllTypesProto2(
         override operator fun plus(other: pbandk.Message?) = protoMergeImpl(other)
         override val descriptor get() = Companion.descriptor
         override val protoSize by lazy { super.protoSize }
+        @kotlin.native.concurrent.ThreadLocal
         companion object : pbandk.Message.Companion<TestAllTypesProto2.MapFixed32Fixed32Entry> {
             val defaultInstance by lazy { TestAllTypesProto2.MapFixed32Fixed32Entry() }
             override fun decodeWith(u: pbandk.MessageDecoder) = TestAllTypesProto2.MapFixed32Fixed32Entry.decodeWithImpl(u)
@@ -1737,6 +1747,7 @@ data class TestAllTypesProto2(
         override operator fun plus(other: pbandk.Message?) = protoMergeImpl(other)
         override val descriptor get() = Companion.descriptor
         override val protoSize by lazy { super.protoSize }
+        @kotlin.native.concurrent.ThreadLocal
         companion object : pbandk.Message.Companion<TestAllTypesProto2.MapFixed64Fixed64Entry> {
             val defaultInstance by lazy { TestAllTypesProto2.MapFixed64Fixed64Entry() }
             override fun decodeWith(u: pbandk.MessageDecoder) = TestAllTypesProto2.MapFixed64Fixed64Entry.decodeWithImpl(u)
@@ -1781,6 +1792,7 @@ data class TestAllTypesProto2(
         override operator fun plus(other: pbandk.Message?) = protoMergeImpl(other)
         override val descriptor get() = Companion.descriptor
         override val protoSize by lazy { super.protoSize }
+        @kotlin.native.concurrent.ThreadLocal
         companion object : pbandk.Message.Companion<TestAllTypesProto2.MapSfixed32Sfixed32Entry> {
             val defaultInstance by lazy { TestAllTypesProto2.MapSfixed32Sfixed32Entry() }
             override fun decodeWith(u: pbandk.MessageDecoder) = TestAllTypesProto2.MapSfixed32Sfixed32Entry.decodeWithImpl(u)
@@ -1825,6 +1837,7 @@ data class TestAllTypesProto2(
         override operator fun plus(other: pbandk.Message?) = protoMergeImpl(other)
         override val descriptor get() = Companion.descriptor
         override val protoSize by lazy { super.protoSize }
+        @kotlin.native.concurrent.ThreadLocal
         companion object : pbandk.Message.Companion<TestAllTypesProto2.MapSfixed64Sfixed64Entry> {
             val defaultInstance by lazy { TestAllTypesProto2.MapSfixed64Sfixed64Entry() }
             override fun decodeWith(u: pbandk.MessageDecoder) = TestAllTypesProto2.MapSfixed64Sfixed64Entry.decodeWithImpl(u)
@@ -1869,6 +1882,7 @@ data class TestAllTypesProto2(
         override operator fun plus(other: pbandk.Message?) = protoMergeImpl(other)
         override val descriptor get() = Companion.descriptor
         override val protoSize by lazy { super.protoSize }
+        @kotlin.native.concurrent.ThreadLocal
         companion object : pbandk.Message.Companion<TestAllTypesProto2.MapInt32FloatEntry> {
             val defaultInstance by lazy { TestAllTypesProto2.MapInt32FloatEntry() }
             override fun decodeWith(u: pbandk.MessageDecoder) = TestAllTypesProto2.MapInt32FloatEntry.decodeWithImpl(u)
@@ -1913,6 +1927,7 @@ data class TestAllTypesProto2(
         override operator fun plus(other: pbandk.Message?) = protoMergeImpl(other)
         override val descriptor get() = Companion.descriptor
         override val protoSize by lazy { super.protoSize }
+        @kotlin.native.concurrent.ThreadLocal
         companion object : pbandk.Message.Companion<TestAllTypesProto2.MapInt32DoubleEntry> {
             val defaultInstance by lazy { TestAllTypesProto2.MapInt32DoubleEntry() }
             override fun decodeWith(u: pbandk.MessageDecoder) = TestAllTypesProto2.MapInt32DoubleEntry.decodeWithImpl(u)
@@ -1957,6 +1972,7 @@ data class TestAllTypesProto2(
         override operator fun plus(other: pbandk.Message?) = protoMergeImpl(other)
         override val descriptor get() = Companion.descriptor
         override val protoSize by lazy { super.protoSize }
+        @kotlin.native.concurrent.ThreadLocal
         companion object : pbandk.Message.Companion<TestAllTypesProto2.MapBoolBoolEntry> {
             val defaultInstance by lazy { TestAllTypesProto2.MapBoolBoolEntry() }
             override fun decodeWith(u: pbandk.MessageDecoder) = TestAllTypesProto2.MapBoolBoolEntry.decodeWithImpl(u)
@@ -2001,6 +2017,7 @@ data class TestAllTypesProto2(
         override operator fun plus(other: pbandk.Message?) = protoMergeImpl(other)
         override val descriptor get() = Companion.descriptor
         override val protoSize by lazy { super.protoSize }
+        @kotlin.native.concurrent.ThreadLocal
         companion object : pbandk.Message.Companion<TestAllTypesProto2.MapStringStringEntry> {
             val defaultInstance by lazy { TestAllTypesProto2.MapStringStringEntry() }
             override fun decodeWith(u: pbandk.MessageDecoder) = TestAllTypesProto2.MapStringStringEntry.decodeWithImpl(u)
@@ -2045,6 +2062,7 @@ data class TestAllTypesProto2(
         override operator fun plus(other: pbandk.Message?) = protoMergeImpl(other)
         override val descriptor get() = Companion.descriptor
         override val protoSize by lazy { super.protoSize }
+        @kotlin.native.concurrent.ThreadLocal
         companion object : pbandk.Message.Companion<TestAllTypesProto2.MapStringBytesEntry> {
             val defaultInstance by lazy { TestAllTypesProto2.MapStringBytesEntry() }
             override fun decodeWith(u: pbandk.MessageDecoder) = TestAllTypesProto2.MapStringBytesEntry.decodeWithImpl(u)
@@ -2089,6 +2107,7 @@ data class TestAllTypesProto2(
         override operator fun plus(other: pbandk.Message?) = protoMergeImpl(other)
         override val descriptor get() = Companion.descriptor
         override val protoSize by lazy { super.protoSize }
+        @kotlin.native.concurrent.ThreadLocal
         companion object : pbandk.Message.Companion<TestAllTypesProto2.MapStringNestedMessageEntry> {
             val defaultInstance by lazy { TestAllTypesProto2.MapStringNestedMessageEntry() }
             override fun decodeWith(u: pbandk.MessageDecoder) = TestAllTypesProto2.MapStringNestedMessageEntry.decodeWithImpl(u)
@@ -2133,6 +2152,7 @@ data class TestAllTypesProto2(
         override operator fun plus(other: pbandk.Message?) = protoMergeImpl(other)
         override val descriptor get() = Companion.descriptor
         override val protoSize by lazy { super.protoSize }
+        @kotlin.native.concurrent.ThreadLocal
         companion object : pbandk.Message.Companion<TestAllTypesProto2.MapStringForeignMessageEntry> {
             val defaultInstance by lazy { TestAllTypesProto2.MapStringForeignMessageEntry() }
             override fun decodeWith(u: pbandk.MessageDecoder) = TestAllTypesProto2.MapStringForeignMessageEntry.decodeWithImpl(u)
@@ -2177,6 +2197,7 @@ data class TestAllTypesProto2(
         override operator fun plus(other: pbandk.Message?) = protoMergeImpl(other)
         override val descriptor get() = Companion.descriptor
         override val protoSize by lazy { super.protoSize }
+        @kotlin.native.concurrent.ThreadLocal
         companion object : pbandk.Message.Companion<TestAllTypesProto2.MapStringNestedEnumEntry> {
             val defaultInstance by lazy { TestAllTypesProto2.MapStringNestedEnumEntry() }
             override fun decodeWith(u: pbandk.MessageDecoder) = TestAllTypesProto2.MapStringNestedEnumEntry.decodeWithImpl(u)
@@ -2221,6 +2242,7 @@ data class TestAllTypesProto2(
         override operator fun plus(other: pbandk.Message?) = protoMergeImpl(other)
         override val descriptor get() = Companion.descriptor
         override val protoSize by lazy { super.protoSize }
+        @kotlin.native.concurrent.ThreadLocal
         companion object : pbandk.Message.Companion<TestAllTypesProto2.MapStringForeignEnumEntry> {
             val defaultInstance by lazy { TestAllTypesProto2.MapStringForeignEnumEntry() }
             override fun decodeWith(u: pbandk.MessageDecoder) = TestAllTypesProto2.MapStringForeignEnumEntry.decodeWithImpl(u)
@@ -2265,6 +2287,7 @@ data class TestAllTypesProto2(
         override operator fun plus(other: pbandk.Message?) = protoMergeImpl(other)
         override val descriptor get() = Companion.descriptor
         override val protoSize by lazy { super.protoSize }
+        @kotlin.native.concurrent.ThreadLocal
         companion object : pbandk.Message.Companion<TestAllTypesProto2.Data> {
             val defaultInstance by lazy { TestAllTypesProto2.Data() }
             override fun decodeWith(u: pbandk.MessageDecoder) = TestAllTypesProto2.Data.decodeWithImpl(u)
@@ -2302,11 +2325,13 @@ data class TestAllTypesProto2(
     }
 
     data class MessageSetCorrect(
-        override val unknownFields: Map<Int, pbandk.UnknownField> = emptyMap()
-    ) : pbandk.Message {
+        override val unknownFields: Map<Int, pbandk.UnknownField> = emptyMap(),
+        override val extensionFields: MutableMap<Int, kotlin.Any> = mutableMapOf()
+    ) : pbandk.ExtendableMessage {
         override operator fun plus(other: pbandk.Message?) = protoMergeImpl(other)
         override val descriptor get() = Companion.descriptor
         override val protoSize by lazy { super.protoSize }
+        @kotlin.native.concurrent.ThreadLocal
         companion object : pbandk.Message.Companion<TestAllTypesProto2.MessageSetCorrect> {
             val defaultInstance by lazy { TestAllTypesProto2.MessageSetCorrect() }
             override fun decodeWith(u: pbandk.MessageDecoder) = TestAllTypesProto2.MessageSetCorrect.decodeWithImpl(u)
@@ -2330,6 +2355,7 @@ data class TestAllTypesProto2(
         override operator fun plus(other: pbandk.Message?) = protoMergeImpl(other)
         override val descriptor get() = Companion.descriptor
         override val protoSize by lazy { super.protoSize }
+        @kotlin.native.concurrent.ThreadLocal
         companion object : pbandk.Message.Companion<TestAllTypesProto2.MessageSetCorrectExtension1> {
             val defaultInstance by lazy { TestAllTypesProto2.MessageSetCorrectExtension1() }
             override fun decodeWith(u: pbandk.MessageDecoder) = TestAllTypesProto2.MessageSetCorrectExtension1.decodeWithImpl(u)
@@ -2363,6 +2389,7 @@ data class TestAllTypesProto2(
         override operator fun plus(other: pbandk.Message?) = protoMergeImpl(other)
         override val descriptor get() = Companion.descriptor
         override val protoSize by lazy { super.protoSize }
+        @kotlin.native.concurrent.ThreadLocal
         companion object : pbandk.Message.Companion<TestAllTypesProto2.MessageSetCorrectExtension2> {
             val defaultInstance by lazy { TestAllTypesProto2.MessageSetCorrectExtension2() }
             override fun decodeWith(u: pbandk.MessageDecoder) = TestAllTypesProto2.MessageSetCorrectExtension2.decodeWithImpl(u)
@@ -2397,6 +2424,7 @@ data class ForeignMessageProto2(
     override operator fun plus(other: pbandk.Message?) = protoMergeImpl(other)
     override val descriptor get() = Companion.descriptor
     override val protoSize by lazy { super.protoSize }
+    @kotlin.native.concurrent.ThreadLocal
     companion object : pbandk.Message.Companion<ForeignMessageProto2> {
         val defaultInstance by lazy { ForeignMessageProto2() }
         override fun decodeWith(u: pbandk.MessageDecoder) = ForeignMessageProto2.decodeWithImpl(u)
@@ -2434,6 +2462,7 @@ data class UnknownToTestAllTypes(
     override operator fun plus(other: pbandk.Message?) = protoMergeImpl(other)
     override val descriptor get() = Companion.descriptor
     override val protoSize by lazy { super.protoSize }
+    @kotlin.native.concurrent.ThreadLocal
     companion object : pbandk.Message.Companion<UnknownToTestAllTypes> {
         val defaultInstance by lazy { UnknownToTestAllTypes() }
         override fun decodeWith(u: pbandk.MessageDecoder) = UnknownToTestAllTypes.decodeWithImpl(u)
@@ -2506,6 +2535,7 @@ data class UnknownToTestAllTypes(
         override operator fun plus(other: pbandk.Message?) = protoMergeImpl(other)
         override val descriptor get() = Companion.descriptor
         override val protoSize by lazy { super.protoSize }
+        @kotlin.native.concurrent.ThreadLocal
         companion object : pbandk.Message.Companion<UnknownToTestAllTypes.OptionalGroup> {
             val defaultInstance by lazy { UnknownToTestAllTypes.OptionalGroup() }
             override fun decodeWith(u: pbandk.MessageDecoder) = UnknownToTestAllTypes.OptionalGroup.decodeWithImpl(u)
@@ -3498,3 +3528,13 @@ private fun UnknownToTestAllTypes.OptionalGroup.Companion.decodeWithImpl(u: pban
     }
     return UnknownToTestAllTypes.OptionalGroup(a, unknownFields)
 }
+val pbandk.wkt.protobuf_test_messages.proto2.TestAllTypesProto2.extension_int32: Int? get() =
+  getExtension(protobuf_test_messages.proto2.extension_int32)
+
+val extension_int32 = pbandk.FieldDescriptor(
+    name = "extension_int32",
+    number = 120,
+    type = pbandk.FieldDescriptor.Type.Primitive.Int32(hasPresence = true),
+    value = pbandk.wkt.protobuf_test_messages.proto2.TestAllTypesProto2::extension_int32,
+    messageDescriptor = pbandk.wkt.protobuf_test_messages.proto2.TestAllTypesProto2.Companion::descriptor
+)

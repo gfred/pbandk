@@ -1,5 +1,8 @@
 package pbandk.gen
 
+import pbandk.UnknownField
+import pbandk.wkt.FieldOptions
+
 open class CodeGenerator(
     val file: File,
     val kotlinTypeMappings: Map<String, String>,
@@ -13,6 +16,7 @@ open class CodeGenerator(
         file.kotlinPackageName?.let { line("package $it") }
         file.types.forEach { writeType(it) }
         file.types.filterIsInstance<File.Type.Message>().forEach { writeMessageExtensions(it) }
+        file.extensions.forEach { writeExtension(it) }
         return bld.toString()
     }
 
@@ -26,7 +30,34 @@ open class CodeGenerator(
         fn().also { indent = indent.dropLast(4) }
     }
 
-    protected fun writeType(type: File.Type, parentType: String? = null) = when (type) {
+    private fun writeExtension(field: File.Field) {
+        when (field) {
+            is File.Field.Numbered -> {
+                val localType = when (field.type) {
+                    File.Field.Type.MESSAGE -> ((field as File.Field.Numbered.Standard).localTypeName ?: field.kotlinLocalTypeName)?.substringAfter(".")
+                    else -> field.type.standardTypeName
+                }
+                line(
+                    "val pbandk.wkt${field.extendee!!.substringAfterLast(".google.protobuf")}.${field.name}: ${localType}? get() ="
+                )
+                line("  getExtension(${file.packageName}.${field.name})")
+                line()
+                line("val ${field.name} = pbandk.FieldDescriptor(").indented {
+                    line("name = \"${field.name}\",")
+                    line("number = ${field.number},")
+                    line("type = ${field.fieldDescriptorType(false)},")
+                    line("value = pbandk.wkt${field.extendee!!.substringAfterLast(".google.protobuf")}::${field.name},")
+                    line("messageDescriptor = pbandk.wkt${field.extendee!!.substringAfterLast(".google.protobuf")}.Companion::descriptor")
+                }
+                line(")")
+            }
+        }
+    }
+
+    protected fun writeType(
+        type: File.Type,
+        parentType: String? = null
+    ) = when (type) {
         is File.Type.Enum -> writeEnumType(type, parentType)
         is File.Type.Message -> writeMessageType(type, parentType)
     }
@@ -35,26 +66,32 @@ open class CodeGenerator(
         val parentPrefix = parentType?.let { "${it}." }.orEmpty()
         val typeName = "${parentPrefix}${type.kotlinTypeName}"
         // Enums are sealed classes w/ a value and a name, and a companion object with all values
-        line().line("sealed class ${type.kotlinTypeName}(override val value: Int, override val name: String? = null) : pbandk.Message.Enum {").indented {
-            line("override fun equals(other: kotlin.Any?) = other is ${typeName} && other.value == value")
-            line("override fun hashCode() = value.hashCode()")
-            line("override fun toString() = \"${typeName}.\${name ?: \"UNRECOGNIZED\"}(value=\$value)\"")
-            line()
-            type.values.forEach { line("object ${it.kotlinValueTypeName} : ${type.kotlinTypeName}(${it.number}, \"${it.name}\")") }
-            line("class UNRECOGNIZED(value: Int) : ${typeName}(value)")
-            line()
-            line("companion object : pbandk.Message.Enum.Companion<${typeName}> {").indented {
-                line("val values: List<${typeName}> by lazy { listOf(${type.values.joinToString(", ") { it.kotlinValueTypeName }}) }")
-                line("override fun fromValue(value: Int) = values.firstOrNull { it.value == value } ?: UNRECOGNIZED(value)")
-                line("override fun fromName(name: String) = values.firstOrNull { it.name == name } ?: throw IllegalArgumentException(\"No ${type.kotlinTypeName} with name: \$name\")")
+        line().line("sealed class ${type.kotlinTypeName}(override val value: Int, override val name: String? = null) : pbandk.Message.Enum {")
+            .indented {
+                line("override fun equals(other: kotlin.Any?) = other is ${typeName} && other.value == value")
+                line("override fun hashCode() = value.hashCode()")
+                line("override fun toString() = \"${typeName}.\${name ?: \"UNRECOGNIZED\"}(value=\$value)\"")
+                line()
+                type.values.forEach { line("object ${it.kotlinValueTypeName} : ${type.kotlinTypeName}(${it.number}, \"${it.name}\")") }
+                line("class UNRECOGNIZED(value: Int) : ${typeName}(value)")
+                line()
+                line("companion object : pbandk.Message.Enum.Companion<${typeName}> {").indented {
+                    line("val values: List<${typeName}> by lazy { listOf(${type.values.joinToString(", ") { it.kotlinValueTypeName }}) }")
+                    line("override fun fromValue(value: Int) = values.firstOrNull { it.value == value } ?: UNRECOGNIZED(value)")
+                    line("override fun fromName(name: String) = values.firstOrNull { it.name == name } ?: throw IllegalArgumentException(\"No ${type.kotlinTypeName} with name: \$name\")")
+                }.line("}")
             }.line("}")
-        }.line("}")
     }
 
-    protected fun writeMessageType(type: File.Type.Message, parentType: String? = null) {
+    protected fun writeMessageType(
+        type: File.Type.Message,
+        parentType: String? = null
+    ) {
         val parentPrefix = parentType?.let { "${it}." }.orEmpty()
         val typeName = "${parentPrefix}${type.kotlinTypeName}"
-        var extends = "pbandk.Message"
+        val messageInterface = if (type.extensionRange.isNotEmpty()) "pbandk.ExtendableMessage" else "pbandk.Message"
+
+        var extends = messageInterface
         if (type.mapEntry) extends += ", Map.Entry<${type.mapEntryKeyKotlinType}, ${type.mapEntryValueKotlinType}>"
 
         line().line("data class ${type.kotlinTypeName}(").indented {
@@ -66,7 +103,14 @@ open class CodeGenerator(
                 }
             }
             // The unknown fields
-            line("override val unknownFields: Map<Int, pbandk.UnknownField> = emptyMap()")
+            lineBegin("override val unknownFields: Map<Int, pbandk.UnknownField> = emptyMap()")
+
+            if (messageInterface == "pbandk.ExtendableMessage") {
+                lineEnd(",")
+                line("override val extensionFields: MutableMap<Int, kotlin.Any> = mutableMapOf()")
+            } else {
+                lineEnd()
+            }
         }.line(") : $extends {").indented {
             // One-ofs as sealed class hierarchies
             type.fields.filterIsInstance<File.Field.OneOf>().forEach(::writeOneOfType)
@@ -76,6 +120,7 @@ open class CodeGenerator(
             line("override val protoSize by lazy { super.protoSize }")
 
             // Companion object
+            line("@kotlin.native.concurrent.ThreadLocal")
             line("companion object : pbandk.Message.Companion<${typeName}> {").indented {
                 line("val defaultInstance by lazy { ${typeName}() }")
                 line("override fun decodeWith(u: pbandk.MessageDecoder) = ${typeName}.decodeWithImpl(u)")
@@ -121,6 +166,10 @@ open class CodeGenerator(
         // doesn't allow cyclic frozen structures:
         // https://kotlinlang.org/docs/reference/native/concurrency.html#global-variables-and-singletons. In order to
         // break the circular references, `descriptor` needs to be a `lazy` field.
+        val allFields = type.sortedStandardFieldsWithOneOfs()
+        val chunkSize = 200
+        val needToChunk = allFields.size > chunkSize
+
         line("override val descriptor: pbandk.MessageDescriptor<$fullTypeName> by lazy {").indented {
             // XXX: When a message has lots of fields (e.g. `TestAllTypesProto3`), declaring the list of field
             // descriptors directly in the [MessageDescriptor] constructor can cause a
@@ -128,29 +177,102 @@ open class CodeGenerator(
             // As a workaround, we declare the list of fields as a separate variable rather than inline in the
             // constructor. We also use a list builder rather than `listOf()` in order to have lots of small statements
             // instead of a giant expression (which the compiler struggles with).
-            val allFields = type.sortedStandardFieldsWithOneOfs()
-            line("val fieldsList = ArrayList<pbandk.FieldDescriptor<$fullTypeName, *>>(${allFields.size}).apply {").indented {
-                allFields.forEach { (field, oneof) ->
-                    line("add(").indented {
-                        line("pbandk.FieldDescriptor(").indented {
-                            line("messageDescriptor = this@Companion::descriptor,")
-                            line("name = \"${field.name}\",")
-                            line("number = ${field.number},")
-                            line("type = ${field.fieldDescriptorType(oneof != null)},")
-                            oneof?.let { line("oneofMember = true,") }
-                            field.jsonName?.let { line("jsonName = \"$it\",") }
-                            line("value = $fullTypeName::${field.kotlinFieldName}")
-                        }.line(")")
-                    }.line(")")
+            if (needToChunk) {
+                line("val fieldsList = ArrayList<pbandk.FieldDescriptor<$fullTypeName, *>>(${chunkSize})")
+                allFields.chunked(chunkSize).forEachIndexed { index, chunk ->
+                    line("addFields${index}(fieldsList)")
                 }
-            }.line("}")
+            } else {
+                addFields(allFields, fullTypeName, line("val fieldsList = ArrayList<pbandk.FieldDescriptor<$fullTypeName, *>>(${allFields.size}).apply {"))
+            }
+
             line("pbandk.MessageDescriptor(").indented {
                 line("messageClass = $fullTypeName::class,")
                 line("messageCompanion = this,")
                 line("fields = fieldsList")
             }.line(")")
         }.line("}")
+
+        if (needToChunk) {
+            allFields.chunked(chunkSize).forEachIndexed { index, chunk ->
+                line("fun addFields${index}(fieldsList: ArrayList<pbandk.FieldDescriptor<$fullTypeName, *>>) {").indented {
+                    addFields(chunk, fullTypeName, line("fieldsList.apply {"))
+                }.line("}")
+            }
+        }
     }
+
+    private fun addFields(
+        chunk: List<Pair<File.Field.Numbered, File.Field.OneOf?>>,
+        fullTypeName: String,
+        beginningLine: CodeGenerator
+    ): CodeGenerator {
+        return beginningLine.indented {
+            chunk.forEach { (field, oneof) ->
+                line("add(").indented {
+                    line("pbandk.FieldDescriptor(").indented {
+                        line("messageDescriptor = this@Companion::descriptor,")
+                        line("name = \"${field.name}\",")
+                        line("number = ${field.number},")
+                        line("type = ${field.fieldDescriptorType(oneof != null)},")
+                        oneof?.let { line("oneofMember = true,") }
+                        field.jsonName?.let { line("jsonName = \"$it\",") }
+                        field.options?.let { generateFieldOptions(it) }
+                        line("value = $fullTypeName::${field.kotlinFieldName}")
+                    }.line(")")
+                }.line(")")
+            }
+        }.line("}")
+    }
+
+    private fun generateFieldOptions(fieldOptions: FieldOptions) {
+        val optionalFields = mutableListOf<() -> Unit>()
+        fieldOptions.deprecated?.let {
+            optionalFields.add {
+                lineBegin("deprecated = $it")
+            }
+        }
+        if (fieldOptions.unknownFields.isNotEmpty()) {
+            optionalFields.add { generateUnknownFields(fieldOptions.unknownFields) }
+        }
+        if (optionalFields.isNotEmpty()) {
+            val fieldsToGenerate = optionalFields.listIterator()
+            line("options = pbandk.wkt.FieldOptions(").indented {
+                while (fieldsToGenerate.hasNext()) {
+                    fieldsToGenerate.next()()
+                    if (fieldsToGenerate.hasNext()) {
+                        lineEnd(",")
+                    } else {
+                        lineEnd()
+                    }
+                }
+            }.line("),")
+        }
+    }
+
+    private fun generateUnknownFields(unknownFields: Map<Int, UnknownField>) {
+        line("unknownFields = mapOf(").indented {
+            unknownFields.entries.forEach {
+                line("${it.key} to pbandk.UnknownField(").indented {
+                    line("fieldNum = ${it.value.fieldNum},")
+                    when (it.value.value) {
+                        is UnknownField.Value.LengthDelimited -> line("value = pbandk.UnknownField.Value.LengthDelimited(bytes=pbandk.ByteArr(byteArrayOf(${(it.value.value as UnknownField.Value.LengthDelimited).bytes.array.joinToString()})))")
+                        is UnknownField.Value.Composite -> line("value = pbandk.UnknownField.Value.Composite(values=listOf(${
+                            getValue(
+                                it.value.value
+                            )
+                        }))")
+                        else -> throw UnsupportedOperationException("Unsupported unknown field type: '${it.value.value}'")
+                    }
+                }.line(")")
+            }
+        }.lineBegin(")")
+    }
+
+    private fun getValue(it: UnknownField.Value) =
+        (it as UnknownField.Value.Composite).values.joinToString {
+            "pbandk.UnknownField.Value.LengthDelimited(bytes=pbandk.ByteArr(byteArrayOf(${(it as UnknownField.Value.LengthDelimited).bytes.array.joinToString()})))"
+        }
 
     fun writeMessageExtensions(type: File.Type.Message, parentType: String? = null) {
         val fullTypeName = if (parentType == null) type.kotlinTypeName else "$parentType.${type.kotlinTypeName}"
@@ -173,12 +295,15 @@ open class CodeGenerator(
             if (field.repeated) {
                 line("${field.kotlinFieldName} = ${field.kotlinFieldName} + plus.${field.kotlinFieldName},")
             } else if (field.type == File.Field.Type.MESSAGE) {
-                line("${field.kotlinFieldName} = " +
-                    "${field.kotlinFieldName}?.plus(plus.${field.kotlinFieldName}) ?: plus.${field.kotlinFieldName},")
+                line(
+                    "${field.kotlinFieldName} = " +
+                        "${field.kotlinFieldName}?.plus(plus.${field.kotlinFieldName}) ?: plus.${field.kotlinFieldName},"
+                )
             } else if (field.hasPresence) {
                 line("${field.kotlinFieldName} = plus.${field.kotlinFieldName} ?: ${field.kotlinFieldName},")
             }
         }
+
         fun mergeWrapper(field: File.Field.Numbered.Wrapper) {
             if (field.repeated) {
                 line("${field.kotlinFieldName} = ${field.kotlinFieldName} + plus.${field.kotlinFieldName},")
@@ -186,6 +311,7 @@ open class CodeGenerator(
                 line("${field.kotlinFieldName} = plus.${field.kotlinFieldName} ?: ${field.kotlinFieldName},")
             }
         }
+
         fun mergeOneOf(oneOf: File.Field.OneOf) {
             val fieldsToMerge = oneOf.fields.filter { it.repeated || it.type == File.Field.Type.MESSAGE }
             if (fieldsToMerge.isEmpty()) {
@@ -194,11 +320,15 @@ open class CodeGenerator(
                 line("${oneOf.kotlinFieldName} = when {").indented {
                     fieldsToMerge.forEach { subField ->
                         val subTypeName = "$fullTypeName." +
-                                "${oneOf.kotlinTypeName}.${oneOf.kotlinFieldTypeNames[subField.name]}"
-                        line("${oneOf.kotlinFieldName} is $subTypeName && " +
-                                "plus.${oneOf.kotlinFieldName} is $subTypeName ->").indented {
-                            line("$subTypeName(${oneOf.kotlinFieldName}.value + " +
-                                "plus.${oneOf.kotlinFieldName}.value)")
+                            "${oneOf.kotlinTypeName}.${oneOf.kotlinFieldTypeNames[subField.name]}"
+                        line(
+                            "${oneOf.kotlinFieldName} is $subTypeName && " +
+                                "plus.${oneOf.kotlinFieldName} is $subTypeName ->"
+                        ).indented {
+                            line(
+                                "$subTypeName(${oneOf.kotlinFieldName}.value + " +
+                                    "plus.${oneOf.kotlinFieldName}.value)"
+                            )
                         }
                     }
                     line("else ->").indented {
@@ -223,7 +353,7 @@ open class CodeGenerator(
 
     protected fun writeMessageDecodeWithExtension(type: File.Type.Message, fullTypeName: String) {
         val lineStr = "private fun $fullTypeName.Companion." +
-                "decodeWithImpl(u: pbandk.MessageDecoder): $fullTypeName {"
+            "decodeWithImpl(u: pbandk.MessageDecoder): $fullTypeName {"
         line().line("@Suppress(\"UNCHECKED_CAST\")").line(lineStr).indented {
             // A bunch of locals for each field, initialized with defaults
             val doneKotlinFields = type.fields.map {
@@ -320,23 +450,30 @@ open class CodeGenerator(
                 is File.Field.OneOf -> it.fields.map { f -> f to it }
             }
         }.sortedBy { it.first.number }
-    protected val File.Type.Message.mapEntryKeyField get() =
-        if (!mapEntry) null else (fields[0] as File.Field.Numbered.Standard)
-    protected val File.Type.Message.mapEntryValueField get() =
-        if (!mapEntry) null else (fields[1] as File.Field.Numbered.Standard)
-    protected val File.Type.Message.mapEntryKeyKotlinType get() =
-        if (!mapEntry) null else (fields[0] as File.Field.Numbered.Standard).kotlinValueType(false)
-    protected val File.Type.Message.mapEntryValueKotlinType get() =
-        if (!mapEntry) null else (fields[1] as File.Field.Numbered.Standard).kotlinValueType(true)
+
+    protected val File.Type.Message.mapEntryKeyField
+        get() =
+            if (!mapEntry) null else (fields[0] as File.Field.Numbered.Standard)
+    protected val File.Type.Message.mapEntryValueField
+        get() =
+            if (!mapEntry) null else (fields[1] as File.Field.Numbered.Standard)
+    protected val File.Type.Message.mapEntryKeyKotlinType
+        get() =
+            if (!mapEntry) null else (fields[0] as File.Field.Numbered.Standard).kotlinValueType(false)
+    protected val File.Type.Message.mapEntryValueKotlinType
+        get() =
+            if (!mapEntry) null else (fields[1] as File.Field.Numbered.Standard).kotlinValueType(true)
 
     protected fun File.Field.Numbered.kotlinValueType(nullableIfMessage: Boolean) = when (this) {
         is File.Field.Numbered.Standard -> kotlinValueType(nullableIfMessage)
         is File.Field.Numbered.Wrapper -> kotlinValueType(nullableIfMessage)
     }
-    protected val File.Field.Numbered.defaultValue get() = when (this) {
-        is File.Field.Numbered.Standard -> defaultValue
-        is File.Field.Numbered.Wrapper -> defaultValue
-    }
+
+    protected val File.Field.Numbered.defaultValue
+        get() = when (this) {
+            is File.Field.Numbered.Standard -> defaultValue
+            is File.Field.Numbered.Wrapper -> defaultValue
+        }
 
     protected fun File.Field.Numbered.fieldDescriptorType(isOneOfMember: Boolean = false): String {
         return "pbandk.FieldDescriptor.Type." + when (this) {
@@ -344,9 +481,9 @@ open class CodeGenerator(
                 map -> {
                     val mapEntry = mapEntry()!!
                     "Map<${mapEntry.mapEntryKeyKotlinType}, ${mapEntry.mapEntryValueKotlinType}>(" +
-                            "keyType = ${mapEntry.mapEntryKeyField!!.fieldDescriptorType()}, " +
-                            "valueType = ${mapEntry.mapEntryValueField!!.fieldDescriptorType()}" +
-                            ")"
+                        "keyType = ${mapEntry.mapEntryKeyField!!.fieldDescriptorType()}, " +
+                        "valueType = ${mapEntry.mapEntryValueField!!.fieldDescriptorType()}" +
+                        ")"
                 }
                 repeated -> "Repeated<$kotlinQualifiedTypeName>(valueType = ${copy(repeated = false).fieldDescriptorType()}${if (packed) ", packed = true" else ""})"
                 type == File.Field.Type.MESSAGE -> "Message(messageCompanion = $kotlinQualifiedTypeName.Companion)"
@@ -363,24 +500,29 @@ open class CodeGenerator(
     protected val File.Field.Numbered.Standard.hasPresence get() = (file.version == 2 && optional)
     protected fun File.Field.Numbered.Standard.mapEntry() =
         if (!map) null else (localType as? File.Type.Message)?.takeIf { it.mapEntry }
+
     protected val File.Field.Numbered.Standard.localType get() = localTypeName?.let { findLocalType(it) }
-    protected val File.Field.Numbered.Standard.kotlinQualifiedTypeName get() =
-        kotlinLocalTypeName ?:
-            localTypeName?.let { kotlinTypeMappings.getOrElse(it) { error("Unable to find mapping for $it") } } ?:
-            type.standardTypeName
-    protected val File.Field.Numbered.Standard.decodeWithVarDecl get() = when {
-        repeated -> mapEntry().let { mapEntry ->
-            if (mapEntry == null) "var $kotlinFieldName: pbandk.ListWithSize.Builder<$kotlinQualifiedTypeName>? = null"
-            else "var $kotlinFieldName: pbandk.MessageMap.Builder<" +
+    protected val File.Field.Numbered.Standard.kotlinQualifiedTypeName
+        get() =
+            kotlinLocalTypeName
+                ?: localTypeName?.let { kotlinTypeMappings.getOrElse(it) { error("Unable to find mapping for $it") } }
+                ?: type.standardTypeName
+    protected val File.Field.Numbered.Standard.decodeWithVarDecl
+        get() = when {
+            repeated -> mapEntry().let { mapEntry ->
+                if (mapEntry == null) "var $kotlinFieldName: pbandk.ListWithSize.Builder<$kotlinQualifiedTypeName>? = null"
+                else "var $kotlinFieldName: pbandk.MessageMap.Builder<" +
                     "${mapEntry.mapEntryKeyKotlinType}, ${mapEntry.mapEntryValueKotlinType}>? = null"
+            }
+            requiresExplicitTypeWithVal -> "var $kotlinFieldName: ${kotlinValueType(true)} = $defaultValue"
+            else -> "var $kotlinFieldName = $defaultValue"
         }
-        requiresExplicitTypeWithVal -> "var $kotlinFieldName: ${kotlinValueType(true)} = $defaultValue"
-        else -> "var $kotlinFieldName = $defaultValue"
-    }
-    protected val File.Field.Numbered.Standard.decodeWithVarDone get() =
-        if (map) "pbandk.MessageMap.Builder.fixed($kotlinFieldName)"
-        else if (repeated) "pbandk.ListWithSize.Builder.fixed($kotlinFieldName)"
-        else kotlinFieldName
+    protected val File.Field.Numbered.Standard.decodeWithVarDone
+        get() =
+            if (map) "pbandk.MessageMap.Builder.fixed($kotlinFieldName)"
+            else if (repeated) "pbandk.ListWithSize.Builder.fixed($kotlinFieldName)"
+            else kotlinFieldName
+
     protected fun File.Field.Numbered.Standard.kotlinValueType(nullableIfMessage: Boolean): String = when {
         map -> mapEntry()!!.let { "Map<${it.mapEntryKeyKotlinType}, ${it.mapEntryValueKotlinType}>" }
         repeated -> "List<$kotlinQualifiedTypeName>"
@@ -388,86 +530,99 @@ open class CodeGenerator(
             "$kotlinQualifiedTypeName?"
         else -> kotlinQualifiedTypeName
     }
-    protected val File.Field.Numbered.Standard.defaultValue get() = when {
-        map -> "emptyMap()"
-        repeated -> "emptyList()"
-        hasPresence -> "null"
-        type == File.Field.Type.ENUM -> "$kotlinQualifiedTypeName.fromValue(0)"
-        else -> type.defaultValue
-    }
-    protected val File.Field.Numbered.Standard.requiresExplicitTypeWithVal get() =
-        repeated || hasPresence || type.requiresExplicitTypeWithVal
 
-    protected val File.Field.Numbered.Wrapper.decodeWithVarDecl get() = when {
-        repeated -> "var $kotlinFieldName: pbandk.ListWithSize.Builder<${wrappedType.standardTypeName}>? = null"
-        else -> "var $kotlinFieldName: ${wrappedType.standardTypeName}? = $defaultValue"
-    }
-    protected val File.Field.Numbered.Wrapper.decodeWithVarDone get() = when {
-        repeated -> "pbandk.ListWithSize.Builder.fixed($kotlinFieldName)"
-        else -> kotlinFieldName
-    }
+    protected val File.Field.Numbered.Standard.defaultValue
+        get() = when {
+            map -> "emptyMap()"
+            repeated -> "emptyList()"
+            hasPresence -> "null"
+            type == File.Field.Type.ENUM -> "$kotlinQualifiedTypeName.fromValue(0)"
+            else -> type.defaultValue
+        }
+    protected val File.Field.Numbered.Standard.requiresExplicitTypeWithVal
+        get() =
+            repeated || hasPresence || type.requiresExplicitTypeWithVal
+
+    protected val File.Field.Numbered.Wrapper.decodeWithVarDecl
+        get() = when {
+            repeated -> "var $kotlinFieldName: pbandk.ListWithSize.Builder<${wrappedType.standardTypeName}>? = null"
+            else -> "var $kotlinFieldName: ${wrappedType.standardTypeName}? = $defaultValue"
+        }
+    protected val File.Field.Numbered.Wrapper.decodeWithVarDone
+        get() = when {
+            repeated -> "pbandk.ListWithSize.Builder.fixed($kotlinFieldName)"
+            else -> kotlinFieldName
+        }
+
     protected fun File.Field.Numbered.Wrapper.kotlinValueType(nullableIfMessage: Boolean) = when {
         repeated -> "List<${wrappedType.standardTypeName}>"
         else -> wrappedType.standardTypeName + if (nullableIfMessage) "?" else ""
     }
-    protected val File.Field.Numbered.Wrapper.defaultValue get() = when {
-        repeated -> "emptyList()"
-        else -> "null"
-    }
 
-    protected val File.Field.Type.string get() = when (this) {
-        File.Field.Type.BOOL -> "bool"
-        File.Field.Type.BYTES -> "bytes"
-        File.Field.Type.DOUBLE -> "double"
-        File.Field.Type.ENUM -> "enum"
-        File.Field.Type.FIXED32 -> "fixed32"
-        File.Field.Type.FIXED64 -> "fixed64"
-        File.Field.Type.FLOAT -> "float"
-        File.Field.Type.INT32 -> "int32"
-        File.Field.Type.INT64 -> "int64"
-        File.Field.Type.MESSAGE -> "message"
-        File.Field.Type.SFIXED32 -> "sFixed32"
-        File.Field.Type.SFIXED64 -> "sFixed64"
-        File.Field.Type.SINT32 -> "sInt32"
-        File.Field.Type.SINT64 -> "sInt64"
-        File.Field.Type.STRING -> "string"
-        File.Field.Type.UINT32 -> "uInt32"
-        File.Field.Type.UINT64 -> "uInt64"
-    }
-    protected val File.Field.Type.standardTypeName get() = when (this) {
-        File.Field.Type.BOOL -> "Boolean"
-        File.Field.Type.BYTES -> "pbandk.ByteArr"
-        File.Field.Type.DOUBLE -> "Double"
-        File.Field.Type.ENUM -> error("No standard type name for enums")
-        File.Field.Type.FIXED32 -> "Int"
-        File.Field.Type.FIXED64 -> "Long"
-        File.Field.Type.FLOAT -> "Float"
-        File.Field.Type.INT32 -> "Int"
-        File.Field.Type.INT64 -> "Long"
-        File.Field.Type.MESSAGE -> error("No standard type name for messages")
-        File.Field.Type.SFIXED32 -> "Int"
-        File.Field.Type.SFIXED64 -> "Long"
-        File.Field.Type.SINT32 -> "Int"
-        File.Field.Type.SINT64 -> "Long"
-        File.Field.Type.STRING -> "String"
-        File.Field.Type.UINT32 -> "Int"
-        File.Field.Type.UINT64 -> "Long"
-    }
-    protected val File.Field.Type.defaultValue get() = when (this) {
-        File.Field.Type.BOOL -> "false"
-        File.Field.Type.BYTES -> "pbandk.ByteArr.empty"
-        File.Field.Type.DOUBLE -> "0.0"
-        File.Field.Type.ENUM -> error("No generic default value for enums")
-        File.Field.Type.FIXED32, File.Field.Type.INT32, File.Field.Type.SFIXED32,
+    protected val File.Field.Numbered.Wrapper.defaultValue
+        get() = when {
+            repeated -> "emptyList()"
+            else -> "null"
+        }
+
+    protected val File.Field.Type.string
+        get() = when (this) {
+            File.Field.Type.BOOL -> "bool"
+            File.Field.Type.BYTES -> "bytes"
+            File.Field.Type.DOUBLE -> "double"
+            File.Field.Type.ENUM -> "enum"
+            File.Field.Type.FIXED32 -> "fixed32"
+            File.Field.Type.FIXED64 -> "fixed64"
+            File.Field.Type.FLOAT -> "float"
+            File.Field.Type.INT32 -> "int32"
+            File.Field.Type.INT64 -> "int64"
+            File.Field.Type.MESSAGE -> "message"
+            File.Field.Type.SFIXED32 -> "sFixed32"
+            File.Field.Type.SFIXED64 -> "sFixed64"
+            File.Field.Type.SINT32 -> "sInt32"
+            File.Field.Type.SINT64 -> "sInt64"
+            File.Field.Type.STRING -> "string"
+            File.Field.Type.UINT32 -> "uInt32"
+            File.Field.Type.UINT64 -> "uInt64"
+        }
+    protected val File.Field.Type.standardTypeName
+        get() = when (this) {
+            File.Field.Type.BOOL -> "Boolean"
+            File.Field.Type.BYTES -> "pbandk.ByteArr"
+            File.Field.Type.DOUBLE -> "Double"
+            File.Field.Type.ENUM -> error("No standard type name for enums")
+            File.Field.Type.FIXED32 -> "Int"
+            File.Field.Type.FIXED64 -> "Long"
+            File.Field.Type.FLOAT -> "Float"
+            File.Field.Type.INT32 -> "Int"
+            File.Field.Type.INT64 -> "Long"
+            File.Field.Type.MESSAGE -> error("No standard type name for messages")
+            File.Field.Type.SFIXED32 -> "Int"
+            File.Field.Type.SFIXED64 -> "Long"
+            File.Field.Type.SINT32 -> "Int"
+            File.Field.Type.SINT64 -> "Long"
+            File.Field.Type.STRING -> "String"
+            File.Field.Type.UINT32 -> "Int"
+            File.Field.Type.UINT64 -> "Long"
+        }
+    protected val File.Field.Type.defaultValue
+        get() = when (this) {
+            File.Field.Type.BOOL -> "false"
+            File.Field.Type.BYTES -> "pbandk.ByteArr.empty"
+            File.Field.Type.DOUBLE -> "0.0"
+            File.Field.Type.ENUM -> error("No generic default value for enums")
+            File.Field.Type.FIXED32, File.Field.Type.INT32, File.Field.Type.SFIXED32,
             File.Field.Type.SINT32, File.Field.Type.UINT32 -> "0"
-        File.Field.Type.FIXED64, File.Field.Type.INT64, File.Field.Type.SFIXED64,
+            File.Field.Type.FIXED64, File.Field.Type.INT64, File.Field.Type.SFIXED64,
             File.Field.Type.SINT64, File.Field.Type.UINT64 -> "0L"
-        File.Field.Type.FLOAT -> "0.0F"
-        File.Field.Type.MESSAGE -> "null"
-        File.Field.Type.STRING -> "\"\""
-    }
-    protected val File.Field.Type.requiresExplicitTypeWithVal get() =
-        this == File.Field.Type.BYTES || this == File.Field.Type.ENUM || this == File.Field.Type.MESSAGE
-    protected val File.Field.Type.wrapperKotlinTypeName get() =
-        kotlinTypeMappings[wrapperTypeName] ?: error("No Kotlin type found for wrapper")
+            File.Field.Type.FLOAT -> "0.0F"
+            File.Field.Type.MESSAGE -> "null"
+            File.Field.Type.STRING -> "\"\""
+        }
+    protected val File.Field.Type.requiresExplicitTypeWithVal
+        get() =
+            this == File.Field.Type.BYTES || this == File.Field.Type.ENUM || this == File.Field.Type.MESSAGE
+    protected val File.Field.Type.wrapperKotlinTypeName
+        get() =
+            kotlinTypeMappings[wrapperTypeName] ?: error("No Kotlin type found for wrapper")
 }

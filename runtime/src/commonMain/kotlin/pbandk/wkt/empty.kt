@@ -8,6 +8,7 @@ data class Empty(
     override operator fun plus(other: pbandk.Message?) = protoMergeImpl(other)
     override val descriptor get() = Companion.descriptor
     override val protoSize by lazy { super.protoSize }
+    @kotlin.native.concurrent.ThreadLocal
     companion object : pbandk.Message.Companion<Empty> {
         val defaultInstance by lazy { Empty() }
         override fun decodeWith(u: pbandk.MessageDecoder) = Empty.decodeWithImpl(u)

@@ -10,6 +10,7 @@ data class Timestamp(
     override operator fun plus(other: pbandk.Message?) = protoMergeImpl(other)
     override val descriptor get() = Companion.descriptor
     override val protoSize by lazy { super.protoSize }
+    @kotlin.native.concurrent.ThreadLocal
     companion object : pbandk.Message.Companion<Timestamp> {
         val defaultInstance by lazy { Timestamp() }
         override fun decodeWith(u: pbandk.MessageDecoder) = Timestamp.decodeWithImpl(u)

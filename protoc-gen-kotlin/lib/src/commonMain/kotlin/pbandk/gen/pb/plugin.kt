@@ -12,6 +12,7 @@ data class Version(
     override operator fun plus(other: pbandk.Message?) = protoMergeImpl(other)
     override val descriptor get() = Companion.descriptor
     override val protoSize by lazy { super.protoSize }
+    @kotlin.native.concurrent.ThreadLocal
     companion object : pbandk.Message.Companion<Version> {
         val defaultInstance by lazy { Version() }
         override fun decodeWith(u: pbandk.MessageDecoder) = Version.decodeWithImpl(u)
@@ -78,6 +79,7 @@ data class CodeGeneratorRequest(
     override operator fun plus(other: pbandk.Message?) = protoMergeImpl(other)
     override val descriptor get() = Companion.descriptor
     override val protoSize by lazy { super.protoSize }
+    @kotlin.native.concurrent.ThreadLocal
     companion object : pbandk.Message.Companion<CodeGeneratorRequest> {
         val defaultInstance by lazy { CodeGeneratorRequest() }
         override fun decodeWith(u: pbandk.MessageDecoder) = CodeGeneratorRequest.decodeWithImpl(u)
@@ -142,6 +144,7 @@ data class CodeGeneratorResponse(
     override operator fun plus(other: pbandk.Message?) = protoMergeImpl(other)
     override val descriptor get() = Companion.descriptor
     override val protoSize by lazy { super.protoSize }
+    @kotlin.native.concurrent.ThreadLocal
     companion object : pbandk.Message.Companion<CodeGeneratorResponse> {
         val defaultInstance by lazy { CodeGeneratorResponse() }
         override fun decodeWith(u: pbandk.MessageDecoder) = CodeGeneratorResponse.decodeWithImpl(u)
@@ -186,6 +189,7 @@ data class CodeGeneratorResponse(
         override operator fun plus(other: pbandk.Message?) = protoMergeImpl(other)
         override val descriptor get() = Companion.descriptor
         override val protoSize by lazy { super.protoSize }
+        @kotlin.native.concurrent.ThreadLocal
         companion object : pbandk.Message.Companion<CodeGeneratorResponse.File> {
             val defaultInstance by lazy { CodeGeneratorResponse.File() }
             override fun decodeWith(u: pbandk.MessageDecoder) = CodeGeneratorResponse.File.decodeWithImpl(u)

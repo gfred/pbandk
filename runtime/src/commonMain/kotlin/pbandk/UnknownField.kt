@@ -1,9 +1,9 @@
 package pbandk
 
-import pbandk.internal.binary.Sizer
 import pbandk.internal.Util
+import pbandk.internal.binary.Sizer
 
-data class UnknownField internal constructor(val fieldNum: Int, val value: Value) {
+data class UnknownField constructor(val fieldNum: Int, val value: Value) {
     internal constructor(fieldNum: Int, value: Long, fixed: Boolean = false) :
         this(fieldNum, if (fixed) Value.Fixed64(value) else Value.Varint(value))
     internal constructor(fieldNum: Int, value: Int, fixed: Boolean = false) :

@@ -9,6 +9,7 @@ data class DoubleValue(
     override operator fun plus(other: pbandk.Message?) = protoMergeImpl(other)
     override val descriptor get() = Companion.descriptor
     override val protoSize by lazy { super.protoSize }
+    @kotlin.native.concurrent.ThreadLocal
     companion object : pbandk.Message.Companion<DoubleValue> {
         val defaultInstance by lazy { DoubleValue() }
         override fun decodeWith(u: pbandk.MessageDecoder) = DoubleValue.decodeWithImpl(u)
@@ -42,6 +43,7 @@ data class FloatValue(
     override operator fun plus(other: pbandk.Message?) = protoMergeImpl(other)
     override val descriptor get() = Companion.descriptor
     override val protoSize by lazy { super.protoSize }
+    @kotlin.native.concurrent.ThreadLocal
     companion object : pbandk.Message.Companion<FloatValue> {
         val defaultInstance by lazy { FloatValue() }
         override fun decodeWith(u: pbandk.MessageDecoder) = FloatValue.decodeWithImpl(u)
@@ -75,6 +77,7 @@ data class Int64Value(
     override operator fun plus(other: pbandk.Message?) = protoMergeImpl(other)
     override val descriptor get() = Companion.descriptor
     override val protoSize by lazy { super.protoSize }
+    @kotlin.native.concurrent.ThreadLocal
     companion object : pbandk.Message.Companion<Int64Value> {
         val defaultInstance by lazy { Int64Value() }
         override fun decodeWith(u: pbandk.MessageDecoder) = Int64Value.decodeWithImpl(u)
@@ -108,6 +111,7 @@ data class UInt64Value(
     override operator fun plus(other: pbandk.Message?) = protoMergeImpl(other)
     override val descriptor get() = Companion.descriptor
     override val protoSize by lazy { super.protoSize }
+    @kotlin.native.concurrent.ThreadLocal
     companion object : pbandk.Message.Companion<UInt64Value> {
         val defaultInstance by lazy { UInt64Value() }
         override fun decodeWith(u: pbandk.MessageDecoder) = UInt64Value.decodeWithImpl(u)
@@ -141,6 +145,7 @@ data class Int32Value(
     override operator fun plus(other: pbandk.Message?) = protoMergeImpl(other)
     override val descriptor get() = Companion.descriptor
     override val protoSize by lazy { super.protoSize }
+    @kotlin.native.concurrent.ThreadLocal
     companion object : pbandk.Message.Companion<Int32Value> {
         val defaultInstance by lazy { Int32Value() }
         override fun decodeWith(u: pbandk.MessageDecoder) = Int32Value.decodeWithImpl(u)
@@ -174,6 +179,7 @@ data class UInt32Value(
     override operator fun plus(other: pbandk.Message?) = protoMergeImpl(other)
     override val descriptor get() = Companion.descriptor
     override val protoSize by lazy { super.protoSize }
+    @kotlin.native.concurrent.ThreadLocal
     companion object : pbandk.Message.Companion<UInt32Value> {
         val defaultInstance by lazy { UInt32Value() }
         override fun decodeWith(u: pbandk.MessageDecoder) = UInt32Value.decodeWithImpl(u)
@@ -207,6 +213,7 @@ data class BoolValue(
     override operator fun plus(other: pbandk.Message?) = protoMergeImpl(other)
     override val descriptor get() = Companion.descriptor
     override val protoSize by lazy { super.protoSize }
+    @kotlin.native.concurrent.ThreadLocal
     companion object : pbandk.Message.Companion<BoolValue> {
         val defaultInstance by lazy { BoolValue() }
         override fun decodeWith(u: pbandk.MessageDecoder) = BoolValue.decodeWithImpl(u)
@@ -240,6 +247,7 @@ data class StringValue(
     override operator fun plus(other: pbandk.Message?) = protoMergeImpl(other)
     override val descriptor get() = Companion.descriptor
     override val protoSize by lazy { super.protoSize }
+    @kotlin.native.concurrent.ThreadLocal
     companion object : pbandk.Message.Companion<StringValue> {
         val defaultInstance by lazy { StringValue() }
         override fun decodeWith(u: pbandk.MessageDecoder) = StringValue.decodeWithImpl(u)
@@ -273,6 +281,7 @@ data class BytesValue(
     override operator fun plus(other: pbandk.Message?) = protoMergeImpl(other)
     override val descriptor get() = Companion.descriptor
     override val protoSize by lazy { super.protoSize }
+    @kotlin.native.concurrent.ThreadLocal
     companion object : pbandk.Message.Companion<BytesValue> {
         val defaultInstance by lazy { BytesValue() }
         override fun decodeWith(u: pbandk.MessageDecoder) = BytesValue.decodeWithImpl(u)

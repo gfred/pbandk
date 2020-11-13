@@ -24,6 +24,7 @@ data class Struct(
     override operator fun plus(other: pbandk.Message?) = protoMergeImpl(other)
     override val descriptor get() = Companion.descriptor
     override val protoSize by lazy { super.protoSize }
+    @kotlin.native.concurrent.ThreadLocal
     companion object : pbandk.Message.Companion<Struct> {
         val defaultInstance by lazy { Struct() }
         override fun decodeWith(u: pbandk.MessageDecoder) = Struct.decodeWithImpl(u)
@@ -57,6 +58,7 @@ data class Struct(
         override operator fun plus(other: pbandk.Message?) = protoMergeImpl(other)
         override val descriptor get() = Companion.descriptor
         override val protoSize by lazy { super.protoSize }
+        @kotlin.native.concurrent.ThreadLocal
         companion object : pbandk.Message.Companion<Struct.FieldsEntry> {
             val defaultInstance by lazy { Struct.FieldsEntry() }
             override fun decodeWith(u: pbandk.MessageDecoder) = Struct.FieldsEntry.decodeWithImpl(u)
@@ -123,6 +125,7 @@ data class Value(
     override operator fun plus(other: pbandk.Message?) = protoMergeImpl(other)
     override val descriptor get() = Companion.descriptor
     override val protoSize by lazy { super.protoSize }
+    @kotlin.native.concurrent.ThreadLocal
     companion object : pbandk.Message.Companion<Value> {
         val defaultInstance by lazy { Value() }
         override fun decodeWith(u: pbandk.MessageDecoder) = Value.decodeWithImpl(u)
@@ -212,6 +215,7 @@ data class ListValue(
     override operator fun plus(other: pbandk.Message?) = protoMergeImpl(other)
     override val descriptor get() = Companion.descriptor
     override val protoSize by lazy { super.protoSize }
+    @kotlin.native.concurrent.ThreadLocal
     companion object : pbandk.Message.Companion<ListValue> {
         val defaultInstance by lazy { ListValue() }
         override fun decodeWith(u: pbandk.MessageDecoder) = ListValue.decodeWithImpl(u)

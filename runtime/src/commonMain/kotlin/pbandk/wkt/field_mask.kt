@@ -9,6 +9,7 @@ data class FieldMask(
     override operator fun plus(other: pbandk.Message?) = protoMergeImpl(other)
     override val descriptor get() = Companion.descriptor
     override val protoSize by lazy { super.protoSize }
+    @kotlin.native.concurrent.ThreadLocal
     companion object : pbandk.Message.Companion<FieldMask> {
         val defaultInstance by lazy { FieldMask() }
         override fun decodeWith(u: pbandk.MessageDecoder) = FieldMask.decodeWithImpl(u)

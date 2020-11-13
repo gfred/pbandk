@@ -1,17 +1,24 @@
 package pbandk
 
+import pbandk.wkt.FieldOptions
 import kotlin.reflect.KProperty0
 import kotlin.reflect.KProperty1
 
-@PublicForGeneratedCode
 class FieldDescriptor<M : Message, T>(
     messageDescriptor: KProperty0<MessageDescriptor<M>>,
+    @PublicForGeneratedCode
     val name: String,
+    @PublicForGeneratedCode
     val number: Int,
+    @PublicForGeneratedCode
     val type: Type,
+    @PublicForGeneratedCode
     val value: KProperty1<M, T>,
+    @PublicForGeneratedCode
     val oneofMember: Boolean = false,
-    val jsonName: String? = null
+    @PublicForGeneratedCode
+    val jsonName: String? = null,
+    val options: FieldOptions? = null
 ) {
     // At the time that the [FieldDescriptor] constructor is called, the parent [MessageDescriptor] has not been
     // constructed yet. This is because this [FieldDescriptor] is one of the parameters that will be passed to the
@@ -123,6 +130,54 @@ class FieldDescriptor<M : Message, T>(
             override val isPackable: Boolean get() = false
             override val defaultValue: Any? = emptyMap<K, V>()
             override fun isDefaultValue(value: Any?) = (value as? kotlin.collections.Map<*, *>)?.isEmpty() == true
+        }
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    fun <M : Message, T> parseUnknownField(
+        unknownField: UnknownField.Value,
+        fieldDescriptor: FieldDescriptor<M, T>
+    ): T {
+        return when (fieldDescriptor.type) {
+            is Type.Primitive<*> -> parseUnknownFieldForPrimitiveOrComposite(fieldDescriptor.type, unknownField) as T
+            is Type.Message<*> -> parseUnknownFieldForTypeMessage(fieldDescriptor.type, unknownField) as T
+            else -> throw UnsupportedOperationException("fieldDescriptor.type: '${fieldDescriptor.type}' is not supported")
+        }
+    }
+
+    private fun parseUnknownFieldForPrimitiveOrComposite(type: Type.Primitive<*>, unknownField: UnknownField.Value): T {
+        return if (unknownField is UnknownField.Value.Composite) {
+            parseUnknownFieldForPrimitive(type, unknownField.values.last())
+        } else {
+            parseUnknownFieldForPrimitive(type, unknownField)
+        }
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    private fun parseUnknownFieldForPrimitive(type: Type.Primitive<*>, unknownField: UnknownField.Value) : T {
+       return when (type) {
+           is Type.Primitive.Int32 -> (unknownField as UnknownField.Value.Varint).varint.toInt() as T
+           is Type.Primitive.Int64 -> (unknownField as UnknownField.Value.Varint).varint as T
+           else -> throw UnsupportedOperationException("fieldDescriptor.type: '$type' is not supported")
+       }
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    private fun <T : Message> parseUnknownFieldForTypeMessage(
+        type: Type.Message<T>,
+        unknownField: UnknownField.Value
+    ): T {
+        return when (unknownField) {
+            is UnknownField.Value.Composite -> {
+                unknownField.values
+                    .map { value ->
+                        type.messageCompanion.decodeFromByteArray((value as UnknownField.Value.LengthDelimited).bytes.array)
+                    }
+                    .reduce { acc, it -> acc.plus(it) as T }
+
+            }
+            is UnknownField.Value.LengthDelimited -> type.messageCompanion.decodeFromByteArray(unknownField.bytes.array)
+            else -> throw UnsupportedOperationException("unknown field is not supported: '${unknownField}'")
         }
     }
 }

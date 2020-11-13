@@ -48,6 +48,7 @@ data class FailureSet(
     override operator fun plus(other: pbandk.Message?) = protoMergeImpl(other)
     override val descriptor get() = Companion.descriptor
     override val protoSize by lazy { super.protoSize }
+    @kotlin.native.concurrent.ThreadLocal
     companion object : pbandk.Message.Companion<FailureSet> {
         val defaultInstance by lazy { FailureSet() }
         override fun decodeWith(u: pbandk.MessageDecoder) = FailureSet.decodeWithImpl(u)
@@ -102,6 +103,7 @@ data class ConformanceRequest(
     override operator fun plus(other: pbandk.Message?) = protoMergeImpl(other)
     override val descriptor get() = Companion.descriptor
     override val protoSize by lazy { super.protoSize }
+    @kotlin.native.concurrent.ThreadLocal
     companion object : pbandk.Message.Companion<ConformanceRequest> {
         val defaultInstance by lazy { ConformanceRequest() }
         override fun decodeWith(u: pbandk.MessageDecoder) = ConformanceRequest.decodeWithImpl(u)
@@ -247,6 +249,7 @@ data class ConformanceResponse(
     override operator fun plus(other: pbandk.Message?) = protoMergeImpl(other)
     override val descriptor get() = Companion.descriptor
     override val protoSize by lazy { super.protoSize }
+    @kotlin.native.concurrent.ThreadLocal
     companion object : pbandk.Message.Companion<ConformanceResponse> {
         val defaultInstance by lazy { ConformanceResponse() }
         override fun decodeWith(u: pbandk.MessageDecoder) = ConformanceResponse.decodeWithImpl(u)
@@ -358,6 +361,7 @@ data class JspbEncodingConfig(
     override operator fun plus(other: pbandk.Message?) = protoMergeImpl(other)
     override val descriptor get() = Companion.descriptor
     override val protoSize by lazy { super.protoSize }
+    @kotlin.native.concurrent.ThreadLocal
     companion object : pbandk.Message.Companion<JspbEncodingConfig> {
         val defaultInstance by lazy { JspbEncodingConfig() }
         override fun decodeWith(u: pbandk.MessageDecoder) = JspbEncodingConfig.decodeWithImpl(u)

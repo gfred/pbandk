@@ -15,6 +15,7 @@ data class Api(
     override operator fun plus(other: pbandk.Message?) = protoMergeImpl(other)
     override val descriptor get() = Companion.descriptor
     override val protoSize by lazy { super.protoSize }
+    @kotlin.native.concurrent.ThreadLocal
     companion object : pbandk.Message.Companion<Api> {
         val defaultInstance by lazy { Api() }
         override fun decodeWith(u: pbandk.MessageDecoder) = Api.decodeWithImpl(u)
@@ -114,6 +115,7 @@ data class Method(
     override operator fun plus(other: pbandk.Message?) = protoMergeImpl(other)
     override val descriptor get() = Companion.descriptor
     override val protoSize by lazy { super.protoSize }
+    @kotlin.native.concurrent.ThreadLocal
     companion object : pbandk.Message.Companion<Method> {
         val defaultInstance by lazy { Method() }
         override fun decodeWith(u: pbandk.MessageDecoder) = Method.decodeWithImpl(u)
@@ -208,6 +210,7 @@ data class Mixin(
     override operator fun plus(other: pbandk.Message?) = protoMergeImpl(other)
     override val descriptor get() = Companion.descriptor
     override val protoSize by lazy { super.protoSize }
+    @kotlin.native.concurrent.ThreadLocal
     companion object : pbandk.Message.Companion<Mixin> {
         val defaultInstance by lazy { Mixin() }
         override fun decodeWith(u: pbandk.MessageDecoder) = Mixin.decodeWithImpl(u)

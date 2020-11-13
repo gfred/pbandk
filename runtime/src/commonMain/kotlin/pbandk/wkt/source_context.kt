@@ -9,6 +9,7 @@ data class SourceContext(
     override operator fun plus(other: pbandk.Message?) = protoMergeImpl(other)
     override val descriptor get() = Companion.descriptor
     override val protoSize by lazy { super.protoSize }
+    @kotlin.native.concurrent.ThreadLocal
     companion object : pbandk.Message.Companion<SourceContext> {
         val defaultInstance by lazy { SourceContext() }
         override fun decodeWith(u: pbandk.MessageDecoder) = SourceContext.decodeWithImpl(u)

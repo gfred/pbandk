@@ -9,6 +9,7 @@ data class FileDescriptorSet(
     override operator fun plus(other: pbandk.Message?) = protoMergeImpl(other)
     override val descriptor get() = Companion.descriptor
     override val protoSize by lazy { super.protoSize }
+    @kotlin.native.concurrent.ThreadLocal
     companion object : pbandk.Message.Companion<FileDescriptorSet> {
         val defaultInstance by lazy { FileDescriptorSet() }
         override fun decodeWith(u: pbandk.MessageDecoder) = FileDescriptorSet.decodeWithImpl(u)
@@ -53,6 +54,7 @@ data class FileDescriptorProto(
     override operator fun plus(other: pbandk.Message?) = protoMergeImpl(other)
     override val descriptor get() = Companion.descriptor
     override val protoSize by lazy { super.protoSize }
+    @kotlin.native.concurrent.ThreadLocal
     companion object : pbandk.Message.Companion<FileDescriptorProto> {
         val defaultInstance by lazy { FileDescriptorProto() }
         override fun decodeWith(u: pbandk.MessageDecoder) = FileDescriptorProto.decodeWithImpl(u)
@@ -205,6 +207,7 @@ data class DescriptorProto(
     override operator fun plus(other: pbandk.Message?) = protoMergeImpl(other)
     override val descriptor get() = Companion.descriptor
     override val protoSize by lazy { super.protoSize }
+    @kotlin.native.concurrent.ThreadLocal
     companion object : pbandk.Message.Companion<DescriptorProto> {
         val defaultInstance by lazy { DescriptorProto() }
         override fun decodeWith(u: pbandk.MessageDecoder) = DescriptorProto.decodeWithImpl(u)
@@ -329,6 +332,7 @@ data class DescriptorProto(
         override operator fun plus(other: pbandk.Message?) = protoMergeImpl(other)
         override val descriptor get() = Companion.descriptor
         override val protoSize by lazy { super.protoSize }
+        @kotlin.native.concurrent.ThreadLocal
         companion object : pbandk.Message.Companion<DescriptorProto.ExtensionRange> {
             val defaultInstance by lazy { DescriptorProto.ExtensionRange() }
             override fun decodeWith(u: pbandk.MessageDecoder) = DescriptorProto.ExtensionRange.decodeWithImpl(u)
@@ -383,6 +387,7 @@ data class DescriptorProto(
         override operator fun plus(other: pbandk.Message?) = protoMergeImpl(other)
         override val descriptor get() = Companion.descriptor
         override val protoSize by lazy { super.protoSize }
+        @kotlin.native.concurrent.ThreadLocal
         companion object : pbandk.Message.Companion<DescriptorProto.ReservedRange> {
             val defaultInstance by lazy { DescriptorProto.ReservedRange() }
             override fun decodeWith(u: pbandk.MessageDecoder) = DescriptorProto.ReservedRange.decodeWithImpl(u)
@@ -422,11 +427,13 @@ data class DescriptorProto(
 
 data class ExtensionRangeOptions(
     val uninterpretedOption: List<pbandk.wkt.UninterpretedOption> = emptyList(),
-    override val unknownFields: Map<Int, pbandk.UnknownField> = emptyMap()
-) : pbandk.Message {
+    override val unknownFields: Map<Int, pbandk.UnknownField> = emptyMap(),
+    override val extensionFields: MutableMap<Int, kotlin.Any> = mutableMapOf()
+) : pbandk.ExtendableMessage {
     override operator fun plus(other: pbandk.Message?) = protoMergeImpl(other)
     override val descriptor get() = Companion.descriptor
     override val protoSize by lazy { super.protoSize }
+    @kotlin.native.concurrent.ThreadLocal
     companion object : pbandk.Message.Companion<ExtensionRangeOptions> {
         val defaultInstance by lazy { ExtensionRangeOptions() }
         override fun decodeWith(u: pbandk.MessageDecoder) = ExtensionRangeOptions.decodeWithImpl(u)
@@ -464,17 +471,19 @@ data class FieldDescriptorProto(
     val oneofIndex: Int? = null,
     val jsonName: String? = null,
     val options: pbandk.wkt.FieldOptions? = null,
+    val proto3Optional: Boolean? = null,
     override val unknownFields: Map<Int, pbandk.UnknownField> = emptyMap()
 ) : pbandk.Message {
     override operator fun plus(other: pbandk.Message?) = protoMergeImpl(other)
     override val descriptor get() = Companion.descriptor
     override val protoSize by lazy { super.protoSize }
+    @kotlin.native.concurrent.ThreadLocal
     companion object : pbandk.Message.Companion<FieldDescriptorProto> {
         val defaultInstance by lazy { FieldDescriptorProto() }
         override fun decodeWith(u: pbandk.MessageDecoder) = FieldDescriptorProto.decodeWithImpl(u)
 
         override val descriptor: pbandk.MessageDescriptor<FieldDescriptorProto> by lazy {
-            val fieldsList = ArrayList<pbandk.FieldDescriptor<FieldDescriptorProto, *>>(10).apply {
+            val fieldsList = ArrayList<pbandk.FieldDescriptor<FieldDescriptorProto, *>>(11).apply {
                 add(
                     pbandk.FieldDescriptor(
                         messageDescriptor = this@Companion::descriptor,
@@ -575,6 +584,16 @@ data class FieldDescriptorProto(
                         value = FieldDescriptorProto::jsonName
                     )
                 )
+                add(
+                    pbandk.FieldDescriptor(
+                        messageDescriptor = this@Companion::descriptor,
+                        name = "proto3_optional",
+                        number = 17,
+                        type = pbandk.FieldDescriptor.Type.Primitive.Bool(hasPresence = true),
+                        jsonName = "proto3Optional",
+                        value = FieldDescriptorProto::proto3Optional
+                    )
+                )
             }
             pbandk.MessageDescriptor(
                 messageClass = FieldDescriptorProto::class,
@@ -642,6 +661,7 @@ data class OneofDescriptorProto(
     override operator fun plus(other: pbandk.Message?) = protoMergeImpl(other)
     override val descriptor get() = Companion.descriptor
     override val protoSize by lazy { super.protoSize }
+    @kotlin.native.concurrent.ThreadLocal
     companion object : pbandk.Message.Companion<OneofDescriptorProto> {
         val defaultInstance by lazy { OneofDescriptorProto() }
         override fun decodeWith(u: pbandk.MessageDecoder) = OneofDescriptorProto.decodeWithImpl(u)
@@ -689,6 +709,7 @@ data class EnumDescriptorProto(
     override operator fun plus(other: pbandk.Message?) = protoMergeImpl(other)
     override val descriptor get() = Companion.descriptor
     override val protoSize by lazy { super.protoSize }
+    @kotlin.native.concurrent.ThreadLocal
     companion object : pbandk.Message.Companion<EnumDescriptorProto> {
         val defaultInstance by lazy { EnumDescriptorProto() }
         override fun decodeWith(u: pbandk.MessageDecoder) = EnumDescriptorProto.decodeWithImpl(u)
@@ -762,6 +783,7 @@ data class EnumDescriptorProto(
         override operator fun plus(other: pbandk.Message?) = protoMergeImpl(other)
         override val descriptor get() = Companion.descriptor
         override val protoSize by lazy { super.protoSize }
+        @kotlin.native.concurrent.ThreadLocal
         companion object : pbandk.Message.Companion<EnumDescriptorProto.EnumReservedRange> {
             val defaultInstance by lazy { EnumDescriptorProto.EnumReservedRange() }
             override fun decodeWith(u: pbandk.MessageDecoder) = EnumDescriptorProto.EnumReservedRange.decodeWithImpl(u)
@@ -808,6 +830,7 @@ data class EnumValueDescriptorProto(
     override operator fun plus(other: pbandk.Message?) = protoMergeImpl(other)
     override val descriptor get() = Companion.descriptor
     override val protoSize by lazy { super.protoSize }
+    @kotlin.native.concurrent.ThreadLocal
     companion object : pbandk.Message.Companion<EnumValueDescriptorProto> {
         val defaultInstance by lazy { EnumValueDescriptorProto() }
         override fun decodeWith(u: pbandk.MessageDecoder) = EnumValueDescriptorProto.decodeWithImpl(u)
@@ -863,6 +886,7 @@ data class ServiceDescriptorProto(
     override operator fun plus(other: pbandk.Message?) = protoMergeImpl(other)
     override val descriptor get() = Companion.descriptor
     override val protoSize by lazy { super.protoSize }
+    @kotlin.native.concurrent.ThreadLocal
     companion object : pbandk.Message.Companion<ServiceDescriptorProto> {
         val defaultInstance by lazy { ServiceDescriptorProto() }
         override fun decodeWith(u: pbandk.MessageDecoder) = ServiceDescriptorProto.decodeWithImpl(u)
@@ -921,6 +945,7 @@ data class MethodDescriptorProto(
     override operator fun plus(other: pbandk.Message?) = protoMergeImpl(other)
     override val descriptor get() = Companion.descriptor
     override val protoSize by lazy { super.protoSize }
+    @kotlin.native.concurrent.ThreadLocal
     companion object : pbandk.Message.Companion<MethodDescriptorProto> {
         val defaultInstance by lazy { MethodDescriptorProto() }
         override fun decodeWith(u: pbandk.MessageDecoder) = MethodDescriptorProto.decodeWithImpl(u)
@@ -1019,11 +1044,13 @@ data class FileOptions(
     val phpMetadataNamespace: String? = null,
     val rubyPackage: String? = null,
     val uninterpretedOption: List<pbandk.wkt.UninterpretedOption> = emptyList(),
-    override val unknownFields: Map<Int, pbandk.UnknownField> = emptyMap()
-) : pbandk.Message {
+    override val unknownFields: Map<Int, pbandk.UnknownField> = emptyMap(),
+    override val extensionFields: MutableMap<Int, kotlin.Any> = mutableMapOf()
+) : pbandk.ExtendableMessage {
     override operator fun plus(other: pbandk.Message?) = protoMergeImpl(other)
     override val descriptor get() = Companion.descriptor
     override val protoSize by lazy { super.protoSize }
+    @kotlin.native.concurrent.ThreadLocal
     companion object : pbandk.Message.Companion<FileOptions> {
         val defaultInstance by lazy { FileOptions() }
         override fun decodeWith(u: pbandk.MessageDecoder) = FileOptions.decodeWithImpl(u)
@@ -1117,6 +1144,9 @@ data class FileOptions(
                         number = 20,
                         type = pbandk.FieldDescriptor.Type.Primitive.Bool(hasPresence = true),
                         jsonName = "javaGenerateEqualsAndHash",
+                        options = pbandk.wkt.FieldOptions(
+                            deprecated = true
+                        ),
                         value = FileOptions::javaGenerateEqualsAndHash
                     )
                 )
@@ -1273,11 +1303,13 @@ data class MessageOptions(
     val deprecated: Boolean? = null,
     val mapEntry: Boolean? = null,
     val uninterpretedOption: List<pbandk.wkt.UninterpretedOption> = emptyList(),
-    override val unknownFields: Map<Int, pbandk.UnknownField> = emptyMap()
-) : pbandk.Message {
+    override val unknownFields: Map<Int, pbandk.UnknownField> = emptyMap(),
+    override val extensionFields: MutableMap<Int, kotlin.Any> = mutableMapOf()
+) : pbandk.ExtendableMessage {
     override operator fun plus(other: pbandk.Message?) = protoMergeImpl(other)
     override val descriptor get() = Companion.descriptor
     override val protoSize by lazy { super.protoSize }
+    @kotlin.native.concurrent.ThreadLocal
     companion object : pbandk.Message.Companion<MessageOptions> {
         val defaultInstance by lazy { MessageOptions() }
         override fun decodeWith(u: pbandk.MessageDecoder) = MessageOptions.decodeWithImpl(u)
@@ -1352,11 +1384,13 @@ data class FieldOptions(
     val deprecated: Boolean? = null,
     val weak: Boolean? = null,
     val uninterpretedOption: List<pbandk.wkt.UninterpretedOption> = emptyList(),
-    override val unknownFields: Map<Int, pbandk.UnknownField> = emptyMap()
-) : pbandk.Message {
+    override val unknownFields: Map<Int, pbandk.UnknownField> = emptyMap(),
+    override val extensionFields: MutableMap<Int, kotlin.Any> = mutableMapOf()
+) : pbandk.ExtendableMessage {
     override operator fun plus(other: pbandk.Message?) = protoMergeImpl(other)
     override val descriptor get() = Companion.descriptor
     override val protoSize by lazy { super.protoSize }
+    @kotlin.native.concurrent.ThreadLocal
     companion object : pbandk.Message.Companion<FieldOptions> {
         val defaultInstance by lazy { FieldOptions() }
         override fun decodeWith(u: pbandk.MessageDecoder) = FieldOptions.decodeWithImpl(u)
@@ -1479,11 +1513,13 @@ data class FieldOptions(
 
 data class OneofOptions(
     val uninterpretedOption: List<pbandk.wkt.UninterpretedOption> = emptyList(),
-    override val unknownFields: Map<Int, pbandk.UnknownField> = emptyMap()
-) : pbandk.Message {
+    override val unknownFields: Map<Int, pbandk.UnknownField> = emptyMap(),
+    override val extensionFields: MutableMap<Int, kotlin.Any> = mutableMapOf()
+) : pbandk.ExtendableMessage {
     override operator fun plus(other: pbandk.Message?) = protoMergeImpl(other)
     override val descriptor get() = Companion.descriptor
     override val protoSize by lazy { super.protoSize }
+    @kotlin.native.concurrent.ThreadLocal
     companion object : pbandk.Message.Companion<OneofOptions> {
         val defaultInstance by lazy { OneofOptions() }
         override fun decodeWith(u: pbandk.MessageDecoder) = OneofOptions.decodeWithImpl(u)
@@ -1514,11 +1550,13 @@ data class EnumOptions(
     val allowAlias: Boolean? = null,
     val deprecated: Boolean? = null,
     val uninterpretedOption: List<pbandk.wkt.UninterpretedOption> = emptyList(),
-    override val unknownFields: Map<Int, pbandk.UnknownField> = emptyMap()
-) : pbandk.Message {
+    override val unknownFields: Map<Int, pbandk.UnknownField> = emptyMap(),
+    override val extensionFields: MutableMap<Int, kotlin.Any> = mutableMapOf()
+) : pbandk.ExtendableMessage {
     override operator fun plus(other: pbandk.Message?) = protoMergeImpl(other)
     override val descriptor get() = Companion.descriptor
     override val protoSize by lazy { super.protoSize }
+    @kotlin.native.concurrent.ThreadLocal
     companion object : pbandk.Message.Companion<EnumOptions> {
         val defaultInstance by lazy { EnumOptions() }
         override fun decodeWith(u: pbandk.MessageDecoder) = EnumOptions.decodeWithImpl(u)
@@ -1568,11 +1606,13 @@ data class EnumOptions(
 data class EnumValueOptions(
     val deprecated: Boolean? = null,
     val uninterpretedOption: List<pbandk.wkt.UninterpretedOption> = emptyList(),
-    override val unknownFields: Map<Int, pbandk.UnknownField> = emptyMap()
-) : pbandk.Message {
+    override val unknownFields: Map<Int, pbandk.UnknownField> = emptyMap(),
+    override val extensionFields: MutableMap<Int, kotlin.Any> = mutableMapOf()
+) : pbandk.ExtendableMessage {
     override operator fun plus(other: pbandk.Message?) = protoMergeImpl(other)
     override val descriptor get() = Companion.descriptor
     override val protoSize by lazy { super.protoSize }
+    @kotlin.native.concurrent.ThreadLocal
     companion object : pbandk.Message.Companion<EnumValueOptions> {
         val defaultInstance by lazy { EnumValueOptions() }
         override fun decodeWith(u: pbandk.MessageDecoder) = EnumValueOptions.decodeWithImpl(u)
@@ -1612,11 +1652,13 @@ data class EnumValueOptions(
 data class ServiceOptions(
     val deprecated: Boolean? = null,
     val uninterpretedOption: List<pbandk.wkt.UninterpretedOption> = emptyList(),
-    override val unknownFields: Map<Int, pbandk.UnknownField> = emptyMap()
-) : pbandk.Message {
+    override val unknownFields: Map<Int, pbandk.UnknownField> = emptyMap(),
+    override val extensionFields: MutableMap<Int, kotlin.Any> = mutableMapOf()
+) : pbandk.ExtendableMessage {
     override operator fun plus(other: pbandk.Message?) = protoMergeImpl(other)
     override val descriptor get() = Companion.descriptor
     override val protoSize by lazy { super.protoSize }
+    @kotlin.native.concurrent.ThreadLocal
     companion object : pbandk.Message.Companion<ServiceOptions> {
         val defaultInstance by lazy { ServiceOptions() }
         override fun decodeWith(u: pbandk.MessageDecoder) = ServiceOptions.decodeWithImpl(u)
@@ -1657,11 +1699,13 @@ data class MethodOptions(
     val deprecated: Boolean? = null,
     val idempotencyLevel: pbandk.wkt.MethodOptions.IdempotencyLevel? = null,
     val uninterpretedOption: List<pbandk.wkt.UninterpretedOption> = emptyList(),
-    override val unknownFields: Map<Int, pbandk.UnknownField> = emptyMap()
-) : pbandk.Message {
+    override val unknownFields: Map<Int, pbandk.UnknownField> = emptyMap(),
+    override val extensionFields: MutableMap<Int, kotlin.Any> = mutableMapOf()
+) : pbandk.ExtendableMessage {
     override operator fun plus(other: pbandk.Message?) = protoMergeImpl(other)
     override val descriptor get() = Companion.descriptor
     override val protoSize by lazy { super.protoSize }
+    @kotlin.native.concurrent.ThreadLocal
     companion object : pbandk.Message.Companion<MethodOptions> {
         val defaultInstance by lazy { MethodOptions() }
         override fun decodeWith(u: pbandk.MessageDecoder) = MethodOptions.decodeWithImpl(u)
@@ -1738,6 +1782,7 @@ data class UninterpretedOption(
     override operator fun plus(other: pbandk.Message?) = protoMergeImpl(other)
     override val descriptor get() = Companion.descriptor
     override val protoSize by lazy { super.protoSize }
+    @kotlin.native.concurrent.ThreadLocal
     companion object : pbandk.Message.Companion<UninterpretedOption> {
         val defaultInstance by lazy { UninterpretedOption() }
         override fun decodeWith(u: pbandk.MessageDecoder) = UninterpretedOption.decodeWithImpl(u)
@@ -1831,6 +1876,7 @@ data class UninterpretedOption(
         override operator fun plus(other: pbandk.Message?) = protoMergeImpl(other)
         override val descriptor get() = Companion.descriptor
         override val protoSize by lazy { super.protoSize }
+        @kotlin.native.concurrent.ThreadLocal
         companion object : pbandk.Message.Companion<UninterpretedOption.NamePart> {
             val defaultInstance by lazy { UninterpretedOption.NamePart() }
             override fun decodeWith(u: pbandk.MessageDecoder) = UninterpretedOption.NamePart.decodeWithImpl(u)
@@ -1875,6 +1921,7 @@ data class SourceCodeInfo(
     override operator fun plus(other: pbandk.Message?) = protoMergeImpl(other)
     override val descriptor get() = Companion.descriptor
     override val protoSize by lazy { super.protoSize }
+    @kotlin.native.concurrent.ThreadLocal
     companion object : pbandk.Message.Companion<SourceCodeInfo> {
         val defaultInstance by lazy { SourceCodeInfo() }
         override fun decodeWith(u: pbandk.MessageDecoder) = SourceCodeInfo.decodeWithImpl(u)
@@ -1911,6 +1958,7 @@ data class SourceCodeInfo(
         override operator fun plus(other: pbandk.Message?) = protoMergeImpl(other)
         override val descriptor get() = Companion.descriptor
         override val protoSize by lazy { super.protoSize }
+        @kotlin.native.concurrent.ThreadLocal
         companion object : pbandk.Message.Companion<SourceCodeInfo.Location> {
             val defaultInstance by lazy { SourceCodeInfo.Location() }
             override fun decodeWith(u: pbandk.MessageDecoder) = SourceCodeInfo.Location.decodeWithImpl(u)
@@ -1985,6 +2033,7 @@ data class GeneratedCodeInfo(
     override operator fun plus(other: pbandk.Message?) = protoMergeImpl(other)
     override val descriptor get() = Companion.descriptor
     override val protoSize by lazy { super.protoSize }
+    @kotlin.native.concurrent.ThreadLocal
     companion object : pbandk.Message.Companion<GeneratedCodeInfo> {
         val defaultInstance by lazy { GeneratedCodeInfo() }
         override fun decodeWith(u: pbandk.MessageDecoder) = GeneratedCodeInfo.decodeWithImpl(u)
@@ -2020,6 +2069,7 @@ data class GeneratedCodeInfo(
         override operator fun plus(other: pbandk.Message?) = protoMergeImpl(other)
         override val descriptor get() = Companion.descriptor
         override val protoSize by lazy { super.protoSize }
+        @kotlin.native.concurrent.ThreadLocal
         companion object : pbandk.Message.Companion<GeneratedCodeInfo.Annotation> {
             val defaultInstance by lazy { GeneratedCodeInfo.Annotation() }
             override fun decodeWith(u: pbandk.MessageDecoder) = GeneratedCodeInfo.Annotation.decodeWithImpl(u)
@@ -2277,6 +2327,7 @@ private fun FieldDescriptorProto.protoMergeImpl(plus: pbandk.Message?): FieldDes
     oneofIndex = plus.oneofIndex ?: oneofIndex,
     jsonName = plus.jsonName ?: jsonName,
     options = options?.plus(plus.options) ?: plus.options,
+    proto3Optional = plus.proto3Optional ?: proto3Optional,
     unknownFields = unknownFields + plus.unknownFields
 ) ?: this
 
@@ -2292,6 +2343,7 @@ private fun FieldDescriptorProto.Companion.decodeWithImpl(u: pbandk.MessageDecod
     var oneofIndex: Int? = null
     var jsonName: String? = null
     var options: pbandk.wkt.FieldOptions? = null
+    var proto3Optional: Boolean? = null
 
     val unknownFields = u.readMessage(this) { _fieldNumber, _fieldValue ->
         when (_fieldNumber) {
@@ -2305,11 +2357,12 @@ private fun FieldDescriptorProto.Companion.decodeWithImpl(u: pbandk.MessageDecod
             8 -> options = _fieldValue as pbandk.wkt.FieldOptions
             9 -> oneofIndex = _fieldValue as Int
             10 -> jsonName = _fieldValue as String
+            17 -> proto3Optional = _fieldValue as Boolean
         }
     }
     return FieldDescriptorProto(name, number, label, type,
         typeName, extendee, defaultValue, oneofIndex,
-        jsonName, options, unknownFields)
+        jsonName, options, proto3Optional, unknownFields)
 }
 
 fun OneofDescriptorProto?.orDefault() = this ?: OneofDescriptorProto.defaultInstance
